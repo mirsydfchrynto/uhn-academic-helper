@@ -1,4 +1,5 @@
 import { ChatVertexAI } from "@langchain/google-vertexai";
+import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { ChatOpenAI } from "@langchain/openai";
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import {
@@ -64,10 +65,21 @@ export function initializeLLM() {
     return (primary as any).withFallbacks({ fallbacks });
   }
 
+  // Free Developer Tier: Google AI Studio (GOOGLE_API_KEY)
+  if (process.env.GOOGLE_API_KEY) {
+    console.log("[LLM] Initializing with Google AI Studio (Free Developer API).");
+    const primary = new ChatGoogleGenerativeAI({
+      modelName: "gemini-2.5-pro",
+      apiKey: process.env.GOOGLE_API_KEY,
+      streaming: true,
+    } as any).bindTools(tools);
+    return primary as any;
+  }
+
   // Production: GCP Vertex AI
   if (!process.env.GCP_PROJECT_ID) {
     throw new Error(
-      "CRITICAL: GCP_PROJECT_ID is missing. Set USE_9ROUTER=true for local development."
+      "CRITICAL: No LLM Provider configured! Set GOOGLE_API_KEY for free AI Studio, USE_9ROUTER=true for local, or GCP_PROJECT_ID for Vertex AI."
     );
   }
 
