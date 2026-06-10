@@ -23,7 +23,7 @@ services:
       timeout: 10s
       retries: 3
 
-  # BullMQ Redis Broker for Background Worker Queues (Preparation for Agentic Queue)
+  # BullMQ Redis Broker for Background Worker Queues & Rate Limiting
   redis:
     image: redis:7-alpine
     container_name: uhn-academic-redis
@@ -34,5 +34,20 @@ services:
       - redis_data:/data
     command: redis-server --appendonly yes
 
+  # Local Postgres for LangGraph Checkpointer
+  db:
+    image: postgres:15-alpine
+    container_name: uhn-academic-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: local_user
+      POSTGRES_PASSWORD: local_password
+      POSTGRES_DB: uhn_local_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
 volumes:
   redis_data:
+  postgres_data:

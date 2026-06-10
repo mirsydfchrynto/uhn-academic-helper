@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
   try {
     // === AUTHENTICATION GUARD ===
     // Use server-only env var (no NEXT_PUBLIC_ prefix) to prevent client-side test bypass
-    const isTest = process.env.APP_ENV === 'test';
+    const isTest = process.env.APP_ENV === 'test' || process.env.APP_ENV === 'local';
     let user = null;
     if (isTest) {
       user = { email: "test@example.com" };
